@@ -2,7 +2,20 @@ package gitlab.renue;
 
 import java.io.IOException;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class CsvParser {
-    public void parseCsv(String dataFilePath, Trie trie, int indexedColumnId) throws IOException {
+    public void parseCsv(final String path, Trie trie, final int column) throws IOException {
+        String line;
+        try (var reader = new BufferedReader(new FileReader(path))) {
+            while ((line = reader.readLine()) != null ){
+                var columns = line.split(",");
+                var value = columns[column - 1];
+                int id = Integer.parseInt(columns[0]);
+                trie.insert(value, id);
+            }
+        }
     }
 }
