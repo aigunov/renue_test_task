@@ -7,9 +7,9 @@ import java.util.List;
  * список найденных идентификаторов и время выполнения поиска.
  */
 public class SearchResult implements ReportElement {
-    private String search;
-    private List<Integer> result;
-    private long time;
+    private final String search;
+    private final List<Integer> result;
+    private final long time;
 
     public SearchResult(String search, List<Integer> result, long time) {
         this.search = search;

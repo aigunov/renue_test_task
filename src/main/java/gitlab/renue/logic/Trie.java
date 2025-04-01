@@ -23,7 +23,7 @@ public class Trie {
         }
     }
 
-    private Node root;
+    private final Node root;
 
     /**
      * Конструктор для создания объекта Trie.
