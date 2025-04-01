@@ -17,15 +17,15 @@ public class AirportSearch {
                 dataFilePath = args[++i];
             } else if ("--indexed-column-id".equals(args[i])) {
                 indexedColumnId = Integer.parseInt(args[++i]);
-            } else if ("--input-file".equals(args[++i])) {
+            } else if ("--input-file".equals(args[i])) {
                 inputFilePath = args[++i];
             } else if ("--output-file".equals(args[i])) {
                 outputFilePath = args[++i];
             }
         }
-        if (dataFilePath == null || indexedColumnId <= 0 || indexedColumnId > 15 ||
+        if (dataFilePath == null || indexedColumnId <= 0 || indexedColumnId > 14 ||
                 inputFilePath == null || outputFilePath == null) {
-            System.err.println("Неверные входные данные");
+            System.out.println("Неверные входные данные");
             return;
         }
 
@@ -41,7 +41,7 @@ public class AirportSearch {
         try {
             parser.parseCsv(dataFilePath, trie, indexedColumnId);
         } catch (IOException error){
-            System.err.println("Ошибка чтения таблицы: " + error.getMessage());
+            System.out.println("Ошибка чтения таблицы: " + error.getMessage());
             return;
         }
         long initTime = System.currentTimeMillis() - startTime;
