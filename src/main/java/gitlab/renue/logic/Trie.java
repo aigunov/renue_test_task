@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * Класс Trie представляет собой префиксное дерево (Trie) для хранения и поиска идентификаторов аэропортов по префиксам.
+ * Поиск нечувствителен к регистру.
  */
 public class Trie {
 
@@ -40,7 +41,7 @@ public class Trie {
      */
     public void insert(String value, int airportId) {
         Node current = root;
-        for (char c : value.toCharArray()) {
+        for (char c : value.toLowerCase().toCharArray()) {
             current.children.putIfAbsent(c, new Node());
             current = current.children.get(c);
         }
@@ -55,9 +56,9 @@ public class Trie {
      */
     public List<Integer> search(String prefix) {
         Node current = root;
-        for (char c : prefix.toCharArray()) {
+        for (char c : prefix.toLowerCase().toCharArray()) {
             if (!current.children.containsKey(c)) {
-                return new ArrayList<>(); // Возвращаем пустой список, если префикс не найден.
+                return new ArrayList<>();
             }
             current = current.children.get(c);
         }
