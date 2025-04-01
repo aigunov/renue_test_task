@@ -3,8 +3,8 @@ package gitlab.renue.report;
 import java.util.List;
 
 public class ResponseFormatter {
-    private long initTime;
-    private List<SearchResult> results;
+    private final long initTime;
+    private final List<SearchResult> results;
 
     public ResponseFormatter(long initTime, List<SearchResult> results) {
         this.initTime = initTime;

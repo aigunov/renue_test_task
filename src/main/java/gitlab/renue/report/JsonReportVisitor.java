@@ -16,9 +16,9 @@ public class JsonReportVisitor implements ReportVisitor {
     private static final String ESCAPED_QUOTE = "\\\"";
     private static final String ESCAPED_BACKSLASH = "\\\\";
 
-    private String outputFilePath;
+    private final String outputFilePath;
     private long initTime;
-    private List<SearchResult> results;
+    private final List<SearchResult> results;
 
     /**
      * Конструктор класса.
@@ -57,7 +57,6 @@ public class JsonReportVisitor implements ReportVisitor {
             writer.write(toJson());
         } catch (IOException e) {
             System.err.println("Не удалось записать результат в файл: " + outputFilePath);
-            e.printStackTrace();
         }
     }
 
