@@ -65,5 +65,6 @@ public class AirportSearch {
         var formatter = new ResponseFormatter(initTime, results);
         var visitor = new JsonReportVisitor(outputFilePath);
         formatter.format(visitor);
+        System.out.println("Поиск завершен.");
     }
 }

@@ -15,7 +15,6 @@ public class CsvParser {
                 int id = Integer.parseInt(columns[0]);
                 trie.insert(value, id);
             }
-            System.out.println("Завершен парсинг таблицы.");
         }
     }
 }
