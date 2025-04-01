@@ -2,6 +2,10 @@ package gitlab.renue.report;
 
 import java.util.List;
 
+/**
+ * Класс SearchResult представляет результат поиска, включающий поисковый запрос,
+ * список найденных идентификаторов и время выполнения поиска.
+ */
 public class SearchResult implements ReportElement {
     private String search;
     private List<Integer> result;
