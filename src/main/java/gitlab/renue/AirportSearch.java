@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AirportSearch {
     private static String dataFilePath = null;
@@ -54,7 +57,7 @@ public class AirportSearch {
             String request;
             while ((request = reader.readLine()) != null){
                 long searchStart = System.currentTimeMillis();
-                var result = trie.search(request);
+                var result = Arrays.stream(trie.search(request)).boxed().collect(Collectors.toList());
                 long searchTime = System.currentTimeMillis() - searchStart;
                 results.add(new SearchResult(request, result, searchTime));
             }
