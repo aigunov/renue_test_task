@@ -11,10 +11,11 @@ public class CsvParser {
         try (var reader = new BufferedReader(new FileReader(path))) {
             while ((line = reader.readLine()) != null ){
                 var columns = line.split(",");
-                var value = columns[column - 1];
+                var value = columns[column - 1].replaceAll("^\"|\"$", "");
                 int id = Integer.parseInt(columns[0]);
                 trie.insert(value, id);
             }
+            System.out.println("Завершен парсинг таблицы.");
         }
     }
 }
