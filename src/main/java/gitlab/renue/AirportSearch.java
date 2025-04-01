@@ -1,7 +1,8 @@
 package gitlab.renue;
+
 import gitlab.renue.logic.CsvParser;
-import gitlab.renue.report.JsonReportVisitor;
 import gitlab.renue.logic.Trie;
+import gitlab.renue.report.JsonReportVisitor;
 import gitlab.renue.report.ResponseFormatter;
 import gitlab.renue.report.SearchResult;
 
@@ -44,12 +45,7 @@ public class AirportSearch {
         CsvParser parser = new CsvParser();
 
         long startTime = System.currentTimeMillis();
-        try {
-            parser.parseCsv(dataFilePath, trie, indexedColumnId);
-        } catch (IOException error){
-            System.out.println("Ошибка чтения таблицы: " + error.getMessage());
-            return;
-        }
+        parser.parseCsv(dataFilePath, trie, indexedColumnId);
         long initTime = System.currentTimeMillis() - startTime;
 
         // Поиск по запросу
