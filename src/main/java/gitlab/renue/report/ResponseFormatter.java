@@ -1,7 +1,5 @@
 package gitlab.renue.report;
 
-import gitlab.renue.logic.JsonReportVisitor;
-
 import java.util.List;
 
 public class ResponseFormatter {
