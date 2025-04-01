@@ -1,4 +1,4 @@
-package gitlab.renue;
+package gitlab.renue.report;
 
 public interface ReportElement {
     void accept(ReportVisitor visitor);

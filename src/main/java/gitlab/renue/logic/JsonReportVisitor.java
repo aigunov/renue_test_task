@@ -1,4 +1,7 @@
-package gitlab.renue;
+package gitlab.renue.logic;
+
+import gitlab.renue.report.ReportVisitor;
+import gitlab.renue.report.SearchResult;
 
 import java.io.FileWriter;
 import java.io.IOException;

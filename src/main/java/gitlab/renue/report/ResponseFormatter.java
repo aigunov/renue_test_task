@@ -1,4 +1,6 @@
-package gitlab.renue;
+package gitlab.renue.report;
+
+import gitlab.renue.logic.JsonReportVisitor;
 
 import java.util.List;
 

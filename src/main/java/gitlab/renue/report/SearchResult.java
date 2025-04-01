@@ -1,4 +1,4 @@
-package gitlab.renue;
+package gitlab.renue.report;
 
 import java.util.List;
 

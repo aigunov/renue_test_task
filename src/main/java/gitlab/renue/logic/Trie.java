@@ -1,4 +1,4 @@
-package gitlab.renue;
+package gitlab.renue.logic;
 
 import java.util.ArrayList;
 import java.util.List;
