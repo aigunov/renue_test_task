@@ -1,7 +1,7 @@
 package gitlab.renue;
 
+import gitlab.renue.logic.CompressedTrie;
 import gitlab.renue.logic.CsvParser;
-import gitlab.renue.logic.Trie;
 import gitlab.renue.report.JsonReportVisitor;
 import gitlab.renue.report.ResponseFormatter;
 import gitlab.renue.report.SearchResult;
@@ -10,8 +10,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class AirportSearch {
     private static String dataFilePath = null;
@@ -43,11 +41,11 @@ public class AirportSearch {
 
     private static void search() {
         // Формирование дерева
-        Trie trie = new Trie();
+        CompressedTrie compressedTrie = new CompressedTrie();
         CsvParser parser = new CsvParser();
 
         long startTime = System.currentTimeMillis();
-        parser.parseCsv(dataFilePath, trie, indexedColumnId);
+        parser.parseCsv(dataFilePath, compressedTrie, indexedColumnId);
         long initTime = System.currentTimeMillis() - startTime;
 
         // Поиск по запросу
@@ -56,7 +54,7 @@ public class AirportSearch {
             String request;
             while ((request = reader.readLine()) != null){
                 long searchStart = System.currentTimeMillis();
-                var result = trie.search(request);
+                var result = compressedTrie.search(request);
                 long searchTime = System.currentTimeMillis() - searchStart;
                 results.add(new SearchResult(request, result, searchTime));
             }
