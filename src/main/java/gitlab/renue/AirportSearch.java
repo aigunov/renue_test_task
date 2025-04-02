@@ -56,7 +56,7 @@ public class AirportSearch {
             String request;
             while ((request = reader.readLine()) != null){
                 long searchStart = System.currentTimeMillis();
-                var result = Arrays.stream(trie.search(request)).boxed().collect(Collectors.toList());
+                var result = trie.search(request);
                 long searchTime = System.currentTimeMillis() - searchStart;
                 results.add(new SearchResult(request, result, searchTime));
             }
