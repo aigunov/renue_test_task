@@ -10,8 +10,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
 
 public class AirportSearch {
     private static String dataFilePath = null;
@@ -50,35 +48,19 @@ public class AirportSearch {
         parser.parseCsv(dataFilePath, compressedTrie, indexedColumnId);
         long initTime = System.currentTimeMillis() - startTime;
 
-        // Поиск по запросу (многопоточно)
+        // Поиск по запросу
         var results = new ArrayList<SearchResult>();
-        ExecutorService executorService = Executors.newFixedThreadPool(4); // Пул из 4 потоков
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath))) {
+        try (var reader = new BufferedReader(new FileReader(inputFilePath))) {
             String request;
-            List<Future<SearchResult>> futures = new ArrayList<>();
-
             while ((request = reader.readLine()) != null) {
-                String finalRequest = request;
-                futures.add(executorService.submit(() -> {
-                    long searchStart = System.nanoTime();
-                    var result = compressedTrie.search(finalRequest);
-                    long searchTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - searchStart);
-                    return new SearchResult(finalRequest, result, searchTime);
-                }));
-            }
-
-            for (Future<SearchResult> future : futures) {
-                try {
-                    results.add(future.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    System.err.println("Ошибка получения результата: " + e.getMessage());
-                }
+                long searchStart = System.currentTimeMillis();
+                var result = compressedTrie.search(request);
+                long searchTime = System.currentTimeMillis() - searchStart;
+                results.add(new SearchResult(request, result, searchTime));
             }
         } catch (IOException e) {
             System.err.println("Ошибка чтения файла запросов: " + e.getMessage());
-        } finally {
-            executorService.shutdown();
+            return;
         }
 
         // Формирование JSON-отчета
