@@ -10,6 +10,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class AirportSearch {
     private static String dataFilePath = null;
@@ -48,19 +53,35 @@ public class AirportSearch {
         parser.parseCsv(dataFilePath, compressedTrie, indexedColumnId);
         long initTime = System.currentTimeMillis() - startTime;
 
-        // Поиск по запросу
+        // Поиск по запросу (многопоточно)
         var results = new ArrayList<SearchResult>();
-        try(var reader = new BufferedReader(new FileReader(inputFilePath))){
+        ExecutorService executorService = Executors.newFixedThreadPool(4); // Пул из 4 потоков
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath))) {
             String request;
-            while ((request = reader.readLine()) != null){
-                long searchStart = System.currentTimeMillis();
-                var result = compressedTrie.search(request);
-                long searchTime = System.currentTimeMillis() - searchStart;
-                results.add(new SearchResult(request, result, searchTime));
+            List<Future<SearchResult>> futures = new ArrayList<>();
+
+            while ((request = reader.readLine()) != null) {
+                String finalRequest = request;
+                futures.add(executorService.submit(() -> {
+                    long searchStart = System.currentTimeMillis();
+                    var result = compressedTrie.search(finalRequest);
+                    long searchTime = System.currentTimeMillis() - searchStart;
+                    return new SearchResult(finalRequest, result, searchTime);
+                }));
             }
-        } catch (IOException e){
+
+            for (Future<SearchResult> future : futures) {
+                try {
+                    results.add(future.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    System.err.println("Ошибка получения результата: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
             System.err.println("Ошибка чтения файла запросов: " + e.getMessage());
-            return;
+        } finally {
+            executorService.shutdown();
         }
 
         // Формирование JSON-отчета
