@@ -1,9 +1,6 @@
 package gitlab.renue.logic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Класс CompressedTrie представляет собой сжатое префиксное дерево (Compressed Trie)
@@ -50,6 +47,7 @@ public class CompressedTrie {
         Node current = root;
         String lowerCaseValue = value.toLowerCase();
         int i = 0;
+
         while (i < lowerCaseValue.length()) {
             char c = lowerCaseValue.charAt(i);
             if (!current.children.containsKey(c)) {
@@ -58,33 +56,28 @@ public class CompressedTrie {
                 current.children.put(c, newNode);
                 return;
             }
+
             Node child = current.children.get(c);
-            String childPrefix = child.prefix;
-            int j = 0;
-            while (j < childPrefix.length() && i < lowerCaseValue.length()
-                    && lowerCaseValue.charAt(i) == childPrefix.charAt(j)) {
-                i++;
-                j++;
-            }
-            if (j == childPrefix.length()) {
-                current = child;
-            } else {
-                Node splitNode = new Node(childPrefix.substring(0, j));
-                splitNode.children.put(childPrefix.charAt(j), child);
+            int prefixLen = commonPrefixLength(lowerCaseValue.substring(i), child.prefix);
+            i += prefixLen;
+
+            if (prefixLen < child.prefix.length()) {
+                Node newChild = new Node(child.prefix.substring(prefixLen));
+                newChild.children = child.children;
+                newChild.airportIds.addAll(child.airportIds);
+
+                child.prefix = child.prefix.substring(0, prefixLen);
+                child.children = new HashMap<>();
+                child.children.put(newChild.prefix.charAt(0), newChild);
                 if (i < lowerCaseValue.length()) {
-                    splitNode.children.put(lowerCaseValue.charAt(i), new Node(lowerCaseValue.substring(i)));
-                }
-                splitNode.airportIds.addAll(child.airportIds);
-                child.prefix = childPrefix.substring(j);
-                child.airportIds.clear();
-                child.airportIds.add(airportId);
-                if (i - childPrefix.length() + j >= 0) {
-                    current.children.put(lowerCaseValue.charAt(i - childPrefix.length() + j), splitNode);
-                } else {
-                    current.children.put(childPrefix.charAt(0), splitNode);
+                    Node newNode = new Node(lowerCaseValue.substring(i));
+                    newNode.airportIds.add(airportId);
+                    child.children.put(lowerCaseValue.charAt(i), newNode);
                 }
                 return;
             }
+
+            current = child;
         }
         current.airportIds.add(airportId);
     }
@@ -99,52 +92,68 @@ public class CompressedTrie {
         Node current = root;
         String lowerCasePrefix = prefix.toLowerCase();
         int i = 0;
+
         while (i < lowerCasePrefix.length()) {
             char c = lowerCasePrefix.charAt(i);
             if (!current.children.containsKey(c)) {
                 return new ArrayList<>();
             }
+
             Node child = current.children.get(c);
-            String childPrefix = child.prefix;
-            int j = 0;
-            while (j < childPrefix.length() && i < lowerCasePrefix.length()
-                    && lowerCasePrefix.charAt(i) == childPrefix.charAt(j)) {
-                i++;
-                j++;
-            }
-            if (j == childPrefix.length()) {
-                current = child;
-            } else {
+            int prefixLen = commonPrefixLength(lowerCasePrefix.substring(i), child.prefix);
+
+            if (prefixLen == 0) {
                 return new ArrayList<>();
             }
+
+            if (prefixLen < child.prefix.length()) {
+                if (child.prefix.startsWith(lowerCasePrefix.substring(i))) {
+                    return collectAirportIds(child, child.prefix);
+                } else {
+                    return new ArrayList<>();
+                }
+            }
+
+            i += prefixLen;
+            current = child;
         }
-        return collectAirportIds(current);
+        return collectAirportIds(current, lowerCasePrefix);
     }
 
     /**
      * Собирает идентификаторы аэропортов из узла и его потомков.
      *
-     * @param node Узел, из которого начинается сбор идентификаторов.
+     * @param node   Узел, из которого начинается сбор идентификаторов.
+     * @param prefix Префикс для поиска.
      * @return Список идентификаторов аэропортов.
      */
-    private List<Integer> collectAirportIds(Node node) {
-        List<Integer> result = new ArrayList<>();
-        collectAirportIdsRecursive(node, result);
-        return result;
+    private List<Integer> collectAirportIds(Node node, String prefix) {
+        Set<Integer> uniqueAirportIds = new HashSet<>();
+        collectAirportIdsRecursive(node, uniqueAirportIds);
+        List<Integer> sortedAirportIds = new ArrayList<>(uniqueAirportIds);
+        Collections.sort(sortedAirportIds);
+        return sortedAirportIds;
+    }
+
+    private void collectAirportIdsRecursive(Node node, Set<Integer> uniqueAirportIds) {
+        uniqueAirportIds.addAll(node.airportIds);
+        for (Node child : node.children.values()) {
+            collectAirportIdsRecursive(child, uniqueAirportIds);
+        }
     }
 
     /**
-     * Рекурсивно собирает идентификаторы аэропортов из узла и его потомков.
+     * Вычисляет длину общего префикса двух строк.
      *
-     * @param node   Узел для рекурсивного обхода.
-     * @param result Список для хранения собранных идентификаторов.
+     * @param a Первая строка.
+     * @param b Вторая строка.
+     * @return Длина общего префикса.
      */
-    private void collectAirportIdsRecursive(Node node, List<Integer> result) {
-        if (!node.airportIds.isEmpty()) {
-            result.addAll(node.airportIds);
+    private int commonPrefixLength(String a, String b) {
+        int len = 0;
+        while (len < a.length() && len < b.length() && a.charAt(len) == b.charAt(len)) {
+            len++;
         }
-        for (Node child : node.children.values()) {
-            collectAirportIdsRecursive(child, result);
-        }
+        return len;
     }
 }
