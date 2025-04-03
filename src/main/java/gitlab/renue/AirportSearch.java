@@ -11,10 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class AirportSearch {
     private static String dataFilePath = null;
@@ -64,9 +61,9 @@ public class AirportSearch {
             while ((request = reader.readLine()) != null) {
                 String finalRequest = request;
                 futures.add(executorService.submit(() -> {
-                    long searchStart = System.currentTimeMillis();
+                    long searchStart = System.nanoTime();
                     var result = compressedTrie.search(finalRequest);
-                    long searchTime = System.currentTimeMillis() - searchStart;
+                    long searchTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - searchStart);
                     return new SearchResult(finalRequest, result, searchTime);
                 }));
             }
