@@ -129,17 +129,21 @@ public class CompressedTrie {
      */
     private List<Integer> collectAirportIds(Node node, String prefix) {
         Set<Integer> uniqueAirportIds = new HashSet<>();
-        collectAirportIdsRecursive(node, uniqueAirportIds);
+        Stack<Node> stack = new Stack<>();
+        stack.push(node);
+
+        while (!stack.isEmpty()) {
+            Node current = stack.pop();
+            uniqueAirportIds.addAll(current.airportIds);
+
+            for (Node child : current.children.values()) {
+                stack.push(child);
+            }
+        }
+
         List<Integer> sortedAirportIds = new ArrayList<>(uniqueAirportIds);
         Collections.sort(sortedAirportIds);
         return sortedAirportIds;
-    }
-
-    private void collectAirportIdsRecursive(Node node, Set<Integer> uniqueAirportIds) {
-        uniqueAirportIds.addAll(node.airportIds);
-        for (Node child : node.children.values()) {
-            collectAirportIdsRecursive(child, uniqueAirportIds);
-        }
     }
 
     /**
