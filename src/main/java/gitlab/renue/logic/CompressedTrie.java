@@ -154,9 +154,11 @@ public class CompressedTrie {
      * @return Длина общего префикса.
      */
     private int commonPrefixLength(String a, String b) {
-        int len = 0;
-        while (len < a.length() && len < b.length() && a.charAt(len) == b.charAt(len)) {
-            len++;
+        int len = Math.min(a.length(), b.length());
+        for (int i = 0; i < len; i++) {
+            if (a.charAt(i) != b.charAt(i)) {
+                return i;
+            }
         }
         return len;
     }
