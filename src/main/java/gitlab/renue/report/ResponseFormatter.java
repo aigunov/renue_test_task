@@ -17,9 +17,6 @@ public class ResponseFormatter {
     }
 
     public void format(ReportVisitor visitor) {
-        if (visitor instanceof JsonReportVisitor) {
-            ((JsonReportVisitor) visitor).setInitTime(initTime);
-        }
         for (SearchResult result : results) {
             result.accept(visitor);
         }
