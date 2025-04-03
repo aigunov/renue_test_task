@@ -8,19 +8,18 @@ import java.util.*;
  * Поиск нечувствителен к регистру.
  */
 public class CompressedTrie {
-
     /**
      * Внутренний класс Node представляет узел сжатого дерева Trie.
      */
     private static class Node {
-        String prefix;
+        char[] prefix;
         Map<Character, Node> children;
-        List<Integer> airportIds;
+        Set<Integer> airportIds;
 
         Node(String prefix) {
-            this.prefix = prefix;
-            this.children = new HashMap<>();
-            this.airportIds = new ArrayList<>();
+            this.prefix = prefix.toCharArray();
+            this.children = new TreeMap<>();
+            this.airportIds = new HashSet<>();
         }
 
         Node() {
@@ -61,14 +60,15 @@ public class CompressedTrie {
             int prefixLen = commonPrefixLength(lowerCaseValue.substring(i), child.prefix);
             i += prefixLen;
 
-            if (prefixLen < child.prefix.length()) {
-                Node newChild = new Node(child.prefix.substring(prefixLen));
+            if (prefixLen < child.prefix.length) {
+                Node newChild = new Node(new String(child.prefix, prefixLen, child.prefix.length - prefixLen));
                 newChild.children = child.children;
                 newChild.airportIds.addAll(child.airportIds);
 
-                child.prefix = child.prefix.substring(0, prefixLen);
-                child.children = new HashMap<>();
-                child.children.put(newChild.prefix.charAt(0), newChild);
+                child.prefix = Arrays.copyOf(child.prefix, prefixLen);
+                child.children = new TreeMap<>();
+                child.children.put(newChild.prefix[0], newChild);
+
                 if (i < lowerCaseValue.length()) {
                     Node newNode = new Node(lowerCaseValue.substring(i));
                     newNode.airportIds.add(airportId);
@@ -106,9 +106,9 @@ public class CompressedTrie {
                 return new ArrayList<>();
             }
 
-            if (prefixLen < child.prefix.length()) {
-                if (child.prefix.startsWith(lowerCasePrefix.substring(i))) {
-                    return collectAirportIds(child, child.prefix);
+            if (prefixLen < child.prefix.length) {
+                if (new String(child.prefix).startsWith(lowerCasePrefix.substring(i))) {
+                    return collectAirportIds(child);
                 } else {
                     return new ArrayList<>();
                 }
@@ -117,19 +117,19 @@ public class CompressedTrie {
             i += prefixLen;
             current = child;
         }
-        return collectAirportIds(current, lowerCasePrefix);
+
+        return collectAirportIds(current);
     }
 
     /**
      * Собирает идентификаторы аэропортов из узла и его потомков.
      *
-     * @param node   Узел, из которого начинается сбор идентификаторов.
-     * @param prefix Префикс для поиска.
+     * @param node Узел, из которого начинается сбор идентификаторов.
      * @return Список идентификаторов аэропортов.
      */
-    private List<Integer> collectAirportIds(Node node, String prefix) {
+    private List<Integer> collectAirportIds(Node node) {
         Set<Integer> uniqueAirportIds = new HashSet<>();
-        Stack<Node> stack = new Stack<>();
+        Deque<Node> stack = new ArrayDeque<>();
         stack.push(node);
 
         while (!stack.isEmpty()) {
@@ -153,10 +153,10 @@ public class CompressedTrie {
      * @param b Вторая строка.
      * @return Длина общего префикса.
      */
-    private int commonPrefixLength(String a, String b) {
-        int len = Math.min(a.length(), b.length());
+    private int commonPrefixLength(String a, char[] b) {
+        int len = Math.min(a.length(), b.length);
         for (int i = 0; i < len; i++) {
-            if (a.charAt(i) != b.charAt(i)) {
+            if (a.charAt(i) != b[i]) {
                 return i;
             }
         }
